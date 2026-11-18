@@ -1,0 +1,57 @@
+module(
+    name = "pyrtaudio",
+    version = "0.1.0",
+)
+
+bazel_dep(name = "platforms", version = "1.1.0")
+bazel_dep(name = "pybind11_bazel", version = "3.0.3")
+bazel_dep(name = "rules_cc", version = "0.2.17")
+bazel_dep(name = "rules_python", version = "2.2.0")
+
+python = use_extension("@rules_python//python/extensions:python.bzl", "python")
+python.defaults(
+    python_version = "3.15",
+)
+python.toolchain(
+    python_version = "3.15",
+)
+use_repo(
+    python,
+    "pythons_hub",
+    python = "python_versions",
+)
+
+local_runtime_repo = use_repo_rule(
+    "@rules_python//python/local_toolchains:repos.bzl",
+    "local_runtime_repo",
+)
+local_runtime_toolchains_repo = use_repo_rule(
+    "@rules_python//python/local_toolchains:repos.bzl",
+    "local_runtime_toolchains_repo",
+)
+
+local_runtime_repo(
+    name = "local_python",
+    interpreter_path = "python3",
+    on_failure = "skip",
+)
+local_runtime_toolchains_repo(
+    name = "local_python_toolchains",
+    runtimes = ["local_python"],
+    target_compatible_with = {
+        "local_python": ["HOST_CONSTRAINTS"],
+    },
+)
+
+register_toolchains(
+    "@local_python_toolchains//:all",
+    "@pythons_hub//:all",
+)
+
+archive_override(
+    module_name = "pybind11_bazel",
+    integrity = "sha256-P0FpkWmah01KN4V8kUTHxHxLyWQ7UYKS36Smm18GPnc=",
+    strip_prefix = "pybind11_bazel-3.0.3",
+    urls = ["https://github.com/pybind/pybind11_bazel/archive/v3.0.3.zip"],
+)
+

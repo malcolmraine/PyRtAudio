@@ -1,0 +1,16 @@
+workspace(name = "pyrtaudio")
+
+
+http_archive(
+  name = "pybind11_bazel",
+  strip_prefix = "pybind11_bazel-3.0.3",
+  urls = ["https://github.com/pybind/pybind11_bazel/archive/v3.0.3.zip"],
+)
+# We still require the pybind library.
+http_archive(
+  name = "pybind11",
+  build_file = "@pybind11_bazel//:pybind11-BUILD.bazel",
+  strip_prefix = "pybind11-3.1.0",
+  urls = ["https://github.com/pybind/pybind11/archive/v3.1.0.zip"],
+)
+

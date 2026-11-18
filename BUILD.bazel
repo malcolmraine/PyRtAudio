@@ -1,0 +1,53 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+cc_library(
+    name = "rtaudio",
+    srcs = [
+        "third_party/rtaudio/RtAudio.cpp",
+        "third_party/rtaudio/rtaudio_c.cpp",
+    ],
+    hdrs = [
+        "third_party/rtaudio/RtAudio.h",
+        "third_party/rtaudio/rtaudio_c.h",
+    ],
+    defines = select({
+        "@platforms//os:macos": [
+            "HAVE_GETTIMEOFDAY",
+            "__MACOSX_CORE__",
+        ],
+        "@platforms//os:linux": [
+            "HAVE_GETTIMEOFDAY",
+            "__LINUX_ALSA__",
+        ],
+        "@platforms//os:windows": [
+            "__WINDOWS_WASAPI__",
+        ],
+        "//conditions:default": [],
+    }),
+    includes = [
+        "third_party/rtaudio",
+        "third_party/rtaudio/include",
+    ],
+    linkopts = select({
+        "@platforms//os:macos": [
+            "-framework",
+            "CoreAudio",
+            "-framework",
+            "CoreFoundation",
+        ],
+        "@platforms//os:linux": [
+            "-lasound",
+            "-pthread",
+        ],
+        "@platforms//os:windows": [
+            "ksuser.lib",
+            "mfplat.lib",
+            "mfuuid.lib",
+            "wmcodecdspuuid.lib",
+            "winmm.lib",
+            "ole32.lib",
+        ],
+        "//conditions:default": [],
+    }),
+    visibility = ["//visibility:public"],
+)
